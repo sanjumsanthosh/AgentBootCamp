@@ -88,15 +88,3 @@ function getCategoryColor(category: string) {
   };
   return colors[category] || '#6b7280';
 }
-        </div>
-        
-        {qa.related_happy_path_index !== null && (
-          <div>
-            <h4 className="font-semibold mb-2">Related Happy Path</h4>
-            <p className="text-sm text-muted-foreground">Index: {qa.related_happy_path_index}</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-}

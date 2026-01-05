@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { WebhookPayload } from '@/lib/types';
 
+// Mark this route as dynamic to prevent build-time evaluation
+export const dynamic = 'force-dynamic';
+
 const WEBHOOK_API_KEY = process.env.WEBHOOK_API_KEY;
 
 export async function POST(request: NextRequest) {
