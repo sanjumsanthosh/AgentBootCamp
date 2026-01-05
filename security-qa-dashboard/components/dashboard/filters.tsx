@@ -1,92 +1,57 @@
-'use client';
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { categories, feasibilityLevels, impactLevels } from '@/lib/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface FiltersProps {
-  selectedCategory: string | null;
-  selectedFeasibility: string | null;
-  selectedImpact: string | null;
-  onCategoryChange: (value: string | null) => void;
-  onFeasibilityChange: (value: string | null) => void;
-  onImpactChange: (value: string | null) => void;
+  category: string;
+  feasibility: string;
+  impact: string;
+  onCategoryChange: (value: string) => void;
+  onFeasibilityChange: (value: string) => void;
+  onImpactChange: (value: string) => void;
 }
 
-export function Filters({
-  selectedCategory,
-  selectedFeasibility,
-  selectedImpact,
-  onCategoryChange,
-  onFeasibilityChange,
-  onImpactChange,
+export default function Filters({ 
+  category, feasibility, impact,
+  onCategoryChange, onFeasibilityChange, onImpactChange 
 }: FiltersProps) {
   return (
-    <div className="flex flex-wrap gap-4">
-      <div className="w-48">
-        <label className="text-sm font-medium mb-2 block">Category</label>
-        <Select
-          value={selectedCategory || 'all'}
-          onValueChange={(value) => onCategoryChange(value === 'all' ? null : value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat}>
-                {cat.replace('_', ' ')}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="w-48">
-        <label className="text-sm font-medium mb-2 block">Feasibility</label>
-        <Select
-          value={selectedFeasibility || 'all'}
-          onValueChange={(value) => onFeasibilityChange(value === 'all' ? null : value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Levels" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Levels</SelectItem>
-            {feasibilityLevels.map((level) => (
-              <SelectItem key={level} value={level}>
-                {level}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="w-48">
-        <label className="text-sm font-medium mb-2 block">Impact</label>
-        <Select
-          value={selectedImpact || 'all'}
-          onValueChange={(value) => onImpactChange(value === 'all' ? null : value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="All Levels" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Levels</SelectItem>
-            {impactLevels.map((level) => (
-              <SelectItem key={level} value={level}>
-                {level}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="flex gap-3 flex-wrap">
+      <Select value={category} onValueChange={onCategoryChange}>
+        <SelectTrigger className="w-[180px] bg-white">
+          <SelectValue placeholder="Category" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Categories</SelectItem>
+          <SelectItem value="prompt_injection">Prompt Injection</SelectItem>
+          <SelectItem value="authorization_bypass">Auth Bypass</SelectItem>
+          <SelectItem value="policy_violation">Policy Violation</SelectItem>
+          <SelectItem value="data_exfiltration">Data Exfiltration</SelectItem>
+        </SelectContent>
+      </Select>
+      
+      <Select value={feasibility} onValueChange={onFeasibilityChange}>
+        <SelectTrigger className="w-[160px] bg-white">
+          <SelectValue placeholder="Feasibility" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Feasibility</SelectItem>
+          <SelectItem value="high">High</SelectItem>
+          <SelectItem value="medium">Medium</SelectItem>
+          <SelectItem value="low">Low</SelectItem>
+        </SelectContent>
+      </Select>
+      
+      <Select value={impact} onValueChange={onImpactChange}>
+        <SelectTrigger className="w-[150px] bg-white">
+          <SelectValue placeholder="Impact" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Impact</SelectItem>
+          <SelectItem value="critical">Critical</SelectItem>
+          <SelectItem value="high">High</SelectItem>
+          <SelectItem value="medium">Medium</SelectItem>
+          <SelectItem value="low">Low</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }

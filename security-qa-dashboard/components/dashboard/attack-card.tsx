@@ -1,78 +1,93 @@
-'use client';
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { QAPair } from '@/lib/types';
+import { formatDistanceToNow } from 'date-fns';
 
-interface AttackCardProps {
-  qa: QAPair;
-  specialistName: string;
-  category: string;
-}
+const categoryColors = {
+  prompt_injection: "bg-red-100 text-red-800",
+  authorization_bypass: "bg-orange-100 text-orange-800",
+  policy_violation: "bg-yellow-100 text-yellow-800",
+  data_exfiltration: "bg-purple-100 text-purple-800"
+};
 
-export function AttackCard({ qa, specialistName, category }: AttackCardProps) {
-  const getFeasibilityColor = (level: string) => {
-    switch (level) {
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-green-500';
-      default: return 'bg-gray-500';
-    }
-  };
+const impactColors = {
+  critical: "bg-red-600 text-white",
+  high: "bg-orange-500 text-white",
+  medium: "bg-yellow-500 text-white",
+  low: "bg-blue-500 text-white"
+};
 
-  const getImpactColor = (level: string) => {
-    switch (level) {
-      case 'critical': return 'bg-red-600';
-      case 'high': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
-      case 'low': return 'bg-blue-500';
-      default: return 'bg-gray-500';
-    }
-  };
-
+export default function AttackCard({ submission }: any) {
   return (
-    <Card className="w-full">
+    <Card className="border-l-4" style={{ borderLeftColor: getCategoryColor(submission.category) }}>
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="text-lg">{qa.qa_id}</CardTitle>
-            <CardDescription>
-              {specialistName} • {category.replace('_', ' ')}
-            </CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="text-lg">{submission.specialist_name}</CardTitle>
+            <p className="text-sm text-gray-500 mt-1">
+              {submission.teams?.name} • {formatDistanceToNow(new Date(submission.submitted_at), { addSuffix: true })}
+            </p>
           </div>
-          <div className="flex gap-2">
-            <Badge className={getFeasibilityColor(qa.feasibility)}>
-              {qa.feasibility}
-            </Badge>
-            <Badge className={getImpactColor(qa.impact)}>
-              {qa.impact}
-            </Badge>
-          </div>
+          <Badge className={categoryColors[submission.category as keyof typeof categoryColors]}>
+            {submission.category.replace('_', ' ')}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <h4 className="font-semibold mb-2">Question</h4>
-          <p className="text-sm text-muted-foreground">{qa.question}</p>
+      
+      <CardContent>
+        <div className="space-y-4">
+          {submission.qa_pairs?.map((qa: any) => (
+            <div key={qa.qa_id} className="border-t pt-4 first:border-0 first:pt-0">
+              <div className="flex gap-2 mb-2">
+                <Badge variant="outline">{qa.qa_id}</Badge>
+                <Badge className={impactColors[qa.impact as keyof typeof impactColors]}>
+                  {qa.impact}
+                </Badge>
+                <Badge variant="secondary">{qa.feasibility} feasibility</Badge>
+              </div>
+              
+              <p className="font-medium text-sm mb-2">Question:</p>
+              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded mb-3">{qa.question}</p>
+              
+              <details className="text-sm">
+                <summary className="cursor-pointer font-medium text-gray-700 hover:text-gray-900">
+                  View Details
+                </summary>
+                <div className="mt-3 space-y-3 pl-4">
+                  <div>
+                    <p className="font-medium">Expected Secure Response:</p>
+                    <p className="text-gray-600 mt-1">{qa.expected_secure_response}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Attack Rationale:</p>
+                    <p className="text-gray-600 mt-1">{qa.attack_rationale}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Vulnerable Indicators:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {qa.vulnerable_response_indicators.map((ind: string, i: number) => (
+                        <Badge key={i} variant="outline" className="text-xs">{ind}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </details>
+            </div>
+          ))}
         </div>
-        
-        <div>
-          <h4 className="font-semibold mb-2">Expected Secure Response</h4>
-          <p className="text-sm text-muted-foreground">{qa.expected_secure_response}</p>
-        </div>
-        
-        <div>
-          <h4 className="font-semibold mb-2">Attack Rationale</h4>
-          <p className="text-sm text-muted-foreground">{qa.attack_rationale}</p>
-        </div>
-        
-        <div>
-          <h4 className="font-semibold mb-2">Vulnerable Response Indicators</h4>
-          <ul className="list-disc list-inside space-y-1">
-            {qa.vulnerable_response_indicators.map((indicator, idx) => (
-              <li key={idx} className="text-sm text-muted-foreground">{indicator}</li>
-            ))}
-          </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
+function getCategoryColor(category: string) {
+  const colors: Record<string, string> = {
+    prompt_injection: '#ef4444',
+    authorization_bypass: '#f97316',
+    policy_violation: '#eab308',
+    data_exfiltration: '#a855f7'
+  };
+  return colors[category] || '#6b7280';
+}
         </div>
         
         {qa.related_happy_path_index !== null && (

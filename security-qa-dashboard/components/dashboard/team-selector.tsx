@@ -1,34 +1,23 @@
-'use client';
-
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface TeamSelectorProps {
-  teams: Array<{ id: string; name: string }>;
-  selectedTeam: string | null;
-  onTeamChange: (teamId: string) => void;
+  teams: string[];
+  selected: string;
+  onChange: (value: string) => void;
 }
 
-export function TeamSelector({ teams, selectedTeam, onTeamChange }: TeamSelectorProps) {
+export default function TeamSelector({ teams, selected, onChange }: TeamSelectorProps) {
   return (
-    <div className="w-full max-w-xs">
-      <Select value={selectedTeam || undefined} onValueChange={onTeamChange}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select a team" />
-        </SelectTrigger>
-        <SelectContent>
-          {teams.map((team) => (
-            <SelectItem key={team.id} value={team.id}>
-              {team.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Select value={selected} onValueChange={onChange}>
+      <SelectTrigger className="w-[200px] bg-white">
+        <SelectValue placeholder="Select Team" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">All Teams</SelectItem>
+        {teams.map(team => (
+          <SelectItem key={team} value={team}>{team}</SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

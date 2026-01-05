@@ -1,65 +1,81 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from 'react';
+import { useSubmissions } from '@/hooks/useSubmissions';
+import TeamSelector from '@/components/dashboard/team-selector';
+import Filters from '@/components/dashboard/filters';
+import AttackCard from '@/components/dashboard/attack-card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+export default function Dashboard() {
+  const { submissions, loading } = useSubmissions();
+  const [selectedTeam, setSelectedTeam] = useState<string>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [feasibilityFilter, setFeasibilityFilter] = useState<string>("all");
+  const [impactFilter, setImpactFilter] = useState<string>("all");
+  
+  // Extract unique teams
+  const teams = Array.from(new Set(submissions.map(s => s.teams?.name))).filter(Boolean);
+  
+  // Filter submissions
+  const filtered = submissions.filter(sub => {
+    if (selectedTeam !== "all" && sub.teams?.name !== selectedTeam) return false;
+    if (categoryFilter !== "all" && sub.category !== categoryFilter) return false;
+    
+    // Filter by QA pairs criteria
+    if (feasibilityFilter !== "all" || impactFilter !== "all") {
+      return sub.qa_pairs?.some((qa: any) => {
+        const feasMatch = feasibilityFilter === "all" || qa.feasibility === feasibilityFilter;
+        const impactMatch = impactFilter === "all" || qa.impact === impactFilter;
+        return feasMatch && impactMatch;
+      });
+    }
+    return true;
+  });
+  
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+  }
+  
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-white p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <header>
+          <h1 className="text-3xl font-bold text-gray-900">Security QA Dashboard</h1>
+          <p className="text-gray-600 mt-2">Real-time attack scenario submissions</p>
+        </header>
+        
+        <div className="flex gap-4 items-start">
+          <TeamSelector 
+            teams={teams} 
+            selected={selectedTeam} 
+            onChange={setSelectedTeam} 
+          />
+          
+          <Filters
+            category={categoryFilter}
+            feasibility={feasibilityFilter}
+            impact={impactFilter}
+            onCategoryChange={setCategoryFilter}
+            onFeasibilityChange={setFeasibilityFilter}
+            onImpactChange={setImpactFilter}
+          />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        
+        <div className="grid gap-4">
+          {filtered.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-gray-500">
+                No submissions found
+              </CardContent>
+            </Card>
+          ) : (
+            filtered.map((submission) => (
+              <AttackCard key={submission.id} submission={submission} />
+            ))
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
