@@ -8,11 +8,6 @@ const WEBHOOK_API_KEY = process.env.WEBHOOK_API_KEY;
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
-  // const apiKey = request.headers.get('x-api-key');
-  
-  // if (apiKey !== WEBHOOK_API_KEY) {
-  //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  // }
 
   try {
     const payload: WebhookPayload = await request.json();
