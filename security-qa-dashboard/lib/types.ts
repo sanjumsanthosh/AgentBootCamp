@@ -17,11 +17,29 @@ export interface QAPair {
   feasibility: typeof feasibilityLevels[number];
   impact: typeof impactLevels[number];
   related_happy_path_index: number | null;
+  
+  // Test execution fields
+  status?: 'pending' | 'running' | 'completed' | 'failed';
+  actual_response?: string;
+  test_passed?: boolean;
+  observations?: string;
+  tested_at?: string;
+  test_duration_ms?: number;
+  picked_at?: string;
+}
+
+export interface TestResult {
+  qa_pair_id: string;
+  actual_response: string;
+  test_passed: boolean;
+  observations?: string;
+  test_duration_ms: number;
 }
 
 export interface WebhookPayload {
   specialist_name: string;
   category: typeof categories[number];
+  team?: string;
   qa_pairs: QAPair[];
 }
 
@@ -32,4 +50,5 @@ export interface Submission {
   category: string;
   submitted_at: string;
   qa_pairs: QAPair[];
+  teams?: { name: string };
 }

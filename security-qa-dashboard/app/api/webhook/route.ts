@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    const teamName = payload.specialist_name.split('_')[0] || 'default';
-    console.log(`Team name extracted: ${teamName}`);
+    const teamName = (payload.team?.trim() || payload.specialist_name.split('_')[0] || 'default');
+    console.log(`Team name resolved: ${teamName}`);
     
     // Get or create team
     let { data: team } = await supabase

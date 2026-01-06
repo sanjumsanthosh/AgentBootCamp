@@ -11,13 +11,19 @@ async function getInitialData() {
     supabase.from('teams').select('name').order('name'),
     supabase
       .from('submissions')
-      .select('id, specialist_name, category, submitted_at, teams:team_id(name), qa_pairs(*)')
+      .select('id, specialist_name, category, submitted_at, team_id, teams:team_id(name), qa_pairs(*)')
       .order('submitted_at', { ascending: false })
   ]);
   
+  // Transform the data to match the expected type
+  const submissions = submissionsRes.data?.map(sub => ({
+    ...sub,
+    teams: Array.isArray(sub.teams) ? sub.teams[0] : sub.teams
+  })) || [];
+  
   return {
     teams: teamsRes.data?.map(t => t.name) || [],
-    submissions: submissionsRes.data || []
+    submissions
   };
 }
 

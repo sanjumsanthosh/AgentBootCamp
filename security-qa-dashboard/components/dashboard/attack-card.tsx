@@ -35,8 +35,8 @@ export default function AttackCard({ submission }: any) {
       
       <CardContent>
         <div className="space-y-4">
-          {submission.qa_pairs?.map((qa: any) => (
-            <div key={qa.qa_id} className="border-t pt-4 first:border-0 first:pt-0">
+          {submission.qa_pairs?.map((qa: any, index: number) => (
+            <div key={`${submission.id}-qa-${index}`} className="border-t pt-4 first:border-0 first:pt-0">
               <div className="flex gap-2 mb-2">
                 <Badge variant="outline">{qa.qa_id}</Badge>
                 <Badge className={impactColors[qa.impact as keyof typeof impactColors]}>
@@ -64,7 +64,10 @@ export default function AttackCard({ submission }: any) {
                   <div>
                     <p className="font-medium">Vulnerable Indicators:</p>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {qa.vulnerable_response_indicators.map((ind: string, i: number) => (
+                      {(typeof qa.vulnerable_response_indicators === 'string' 
+                        ? JSON.parse(qa.vulnerable_response_indicators) 
+                        : qa.vulnerable_response_indicators
+                      ).map((ind: string, i: number) => (
                         <Badge key={i} variant="outline" className="text-xs">{ind}</Badge>
                       ))}
                     </div>
