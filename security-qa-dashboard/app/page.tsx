@@ -32,7 +32,7 @@ export default async function Dashboard() {
   
   return (
     <div className="min-h-screen bg-white p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="mx-auto space-y-6">
         <header>
           <h1 className="text-3xl font-bold text-gray-900">Security QA Dashboard</h1>
           <p className="text-gray-600 mt-2">Real-time attack scenario submissions</p>

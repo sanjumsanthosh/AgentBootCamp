@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
-import { columns, type Submission } from './columns';
+import { columns } from './columns';
 import { qaColumns } from './qa-columns';
-import { type QAPair } from '@/lib/types';
+import { type QAPair, type Submission } from '@/lib/types';
 import TeamSelector from './team-selector';
 import Filters from './filters';
 import { ArrowLeft } from 'lucide-react';
@@ -122,7 +122,7 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
                   {selectedSubmission.category.replace(/_/g, " ")}
                 </Badge>
                 <span className="text-sm text-gray-600">
-                  Team: {selectedSubmission.teams.name}
+                  Team: {selectedSubmission?.teams?.name || 'Unknown'}
                 </span>
                 <span className="text-sm text-gray-600">•</span>
                 <span className="text-sm text-gray-600">
