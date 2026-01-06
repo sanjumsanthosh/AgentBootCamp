@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { columns } from './columns';
 import { qaColumns } from './qa-columns';
+import { reportColumns, useReportModal, type Report } from './report-columns';
 import { type QAPair, type Submission } from '@/lib/types';
 import TeamSelector from './team-selector';
 import Filters from './filters';
@@ -19,6 +20,7 @@ interface Props {
 export default function DashboardClient({ initialSubmissions, initialTeams }: Props) {
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [teams, setTeams] = useState(initialTeams);
+  const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState<number | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
@@ -27,6 +29,8 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [feasibilityFilter, setFeasibilityFilter] = useState('all');
   const [impactFilter, setImpactFilter] = useState('all');
+  
+  const { open, selectedReport, openModal, closeModal, Modal } = useReportModal();
   
   // Fetch submissions via API
   const fetchSubmissions = useCallback(async () => {
@@ -48,6 +52,23 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
       setIsLoading(false);
     }
   }, [selectedTeam, categoryFilter]);
+
+  // Fetch reports
+  const fetchReports = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (selectedTeam !== 'all') params.set('team', selectedTeam);
+
+      const res = await fetch(`/api/reports?${params}`);
+      const json = await res.json();
+
+      if (json.data) {
+        setReports(json.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reports:', error);
+    }
+  }, [selectedTeam]);
   
   // Auto-refresh effect
   useEffect(() => {
@@ -63,21 +84,8 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
   // Refetch when filters change
   useEffect(() => {
     fetchSubmissions();
-  }, [fetchSubmissions]);
-  
-  // Fetch teams on mount
-  useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const res = await fetch('/api/teams');
-        const json = await res.json();
-        if (json.data) setTeams(json.data);
-      } catch (error) {
-        console.error('Failed to fetch teams:', error);
-      }
-    };
-    fetchTeams();
-  }, []);
+    fetchReports();
+  }, [fetchSubmissions, fetchReports]);
   
   // Client-side filtering for feasibility/impact
   const filtered = submissions.filter(sub => {
@@ -193,6 +201,23 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
         data={filtered}
         onRowClick={(row) => setSelectedSubmission(row)}
       />
+
+      <div className="mt-8 border-t pt-6">
+        <h2 className="text-2xl font-bold mb-4">Security Reports</h2>
+        {reports.length === 0 ? (
+          <div className="p-6 text-center text-gray-500 bg-gray-50 rounded">
+            <p>No reports available yet</p>
+          </div>
+        ) : (
+          <DataTable 
+            columns={reportColumns} 
+            data={reports}
+            onRowClick={(row) => openModal(row)}
+          />
+        )}
+      </div>
+
+      <Modal open={open} onClose={closeModal} report={selectedReport} />
     </div>
   );
 }
