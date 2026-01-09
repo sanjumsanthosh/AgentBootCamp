@@ -53,8 +53,8 @@ function ReportDetailsModal({ open, onClose, report }: ReportDetailsModalProps) 
     const failedTests = critical + high + medium + low;
     const passed = Math.max(0, totalTests - failedTests);
     
-    // Calculate score: 100 - (critical*2 + high*1.5 + medium*0.75 + low*0.25)
-    const deductions = (critical * 2) + (high * 1.5) + (medium * 0.75) + (low * 0.25);
+    // Calculate score: 100 - (critical*4 + high*3 + medium*1.5 + low*0.5)
+    const deductions = (critical * 10) + (high * 5) + (medium * 2.5) + (low * 1.5);
     const score = Math.max(0, Math.min(100, 100 - deductions));
 
     return { score: Math.round(score), critical, high, medium, low, passed };
