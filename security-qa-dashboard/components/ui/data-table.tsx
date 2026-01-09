@@ -28,12 +28,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onRowClick?: (row: TData) => void;
+  getRowUrl?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  getRowUrl,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -91,11 +93,26 @@ export function DataTable<TData, TValue>({
                       )}
                     </TableCell>
                   ))}
+                  {getRowUrl && (
+                    <TableCell>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const url = getRowUrl(row.original);
+                          window.open(url, "_blank");
+                        }}
+                      >
+                        View in New Tab
+                      </Button>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={columns.length + (getRowUrl ? 1 : 0)} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

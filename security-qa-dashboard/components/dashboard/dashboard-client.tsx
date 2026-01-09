@@ -213,6 +213,7 @@ export default function DashboardClient({ initialSubmissions, initialTeams }: Pr
             columns={reportColumns} 
             data={reports}
             onRowClick={(row) => openModal(row)}
+            getRowUrl={(row) => row.report_url || `/report/${row.id}`}
           />
         )}
       </div>

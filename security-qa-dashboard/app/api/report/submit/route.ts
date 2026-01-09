@@ -50,7 +50,15 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
-    return NextResponse.json({ success: true, report_id: data?.id, created_at: data?.created_at });
+    const baseUrl = request.nextUrl.origin;
+    const reportUrl = `${baseUrl}/report/${data?.id}`;
+
+    return NextResponse.json({ 
+      success: true, 
+      report_id: data?.id, 
+      created_at: data?.created_at,
+      report_url: reportUrl 
+    });
   } catch (error) {
     console.error('Report submission error:', error);
     return NextResponse.json(
